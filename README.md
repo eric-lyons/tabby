@@ -53,10 +53,24 @@ The first Python function used in all the scripts is the authentication function
 In the other functions, we checked to make sure the authentication function worked as expected and returned a 200. 
 
 ```
-def action_form(request):
-   auth = authenticate(request)
-   if auth.status_code != 200:
-       return auth
+def authenticate(request):
+    if request.method != 'POST':
+        r =  '|ERROR| Request must be POST'; print (r)
+        return Response(r, status=401, mimetype='application/json')
+
+    elif 'authorization' not in request.headers:
+        r = '|ERROR| Request does not have auth token'; print (r)
+        return Response(r, status=400, mimetype='application/json')
+
+    else:
+        # header is the name of the secret saved in Cloud Secret Manager
+        expected_auth_header = 'Token token="{}"'.format(os.environ.get('header'))
+        submitted_auth = request.headers['authorization']
+        if hmac.compare_digest(expected_auth_header,submitted_auth):
+            return Response(status=200, mimetype='application/json')
+
+        else:
+            r = '|ERROR| Incorrect token'; print (r)
  ```
  
 
@@ -65,11 +79,19 @@ def action_form(request):
 In action_form we defined a function called, you guessed it, action_form. It accepts the json payload as an argument. We define a response here which is the form fields users see in the Looker UI, when they select the action. 
  
  ```
-   response = [
- {"name": "bucket", "label": "GCS Bucket Name", "type": "string"},
- {"name": "subject_name", "label": "Subject Name", "type": "string"},
- {"name": "email", "label": " email address", "type": "string"}
-     ]
+def action_form(request):
+    auth = authenticate(request)
+    if auth.status_code != 200:
+        return auth
+
+    response = [
+  {"name": "bucket", "label": "GCS Bucket Name", "type": "string"},
+  {"name": "subject_name", "label": "Subject Name", "type": "string"},
+  {"name": "email", "label": " email address", "type": "string"}
+      ]
+
+    print ('returning form json')
+    return json.dumps(response)
 ```
 
 The only thing the form needs to do is return the response as JSON is the authentication function returns a 200. 
