@@ -12,9 +12,9 @@ import datetime
 import yagmail
 
 
-
+# enter project name
 tmpdir = tempfile.gettempdir()
-storage_client = storage.Client(project='lyons-eric-ops-sandbox') #add your ProjectID here
+storage_client = storage.Client(project='Project') #add your ProjectID here
 
 def buckets(request):
     """Responds to any HTTP request.
@@ -79,13 +79,11 @@ def convertname(request_json):
             df.to_excel(writer, sheet_name=f, index=False)
         path = td + '/tabbed.xlsx'
         writer.save()
-        # CALL SOME STUFF
         print("Uploading dashboard...")
 
         upload_bucket(request_json, path)
         print("Upload complete!")
 
-        # ALSO DELETE FILE AFTER UPLOAD
         
 
         print("Status: 200")
