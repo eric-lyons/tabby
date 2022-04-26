@@ -93,11 +93,29 @@ The entry point is again set to action_complete.
 The main purpose of this function is to return a response when called by the Looker action API. We define the action name, we add the URI of our icon, we define the supported action types, supported formats, and specify the form_url and url. The form_url points at the trigger for action_form which we saved in a txt file in the earlier steps and the url points to the trigger for the action_execute function which we just defined. 
 
 ```
-"supported_action_types": ["dashboard"],
-          "supported_download_settings": ["url"],
-          "supported_formats": ["csv_zip"],
-          "supported_formattings": ["unformatted"],
-          "url": "https://example.cloudfunctions.net/action_complete",
+def action_list(request):
+    auth = authenticate(request)
+    if auth.status_code != 200:
+        return auth
+    """Return a list of actions"""
+    return {
+       "label": "Send Tabbed Dashboards with Tabby!",
+       "integrations": [
+           {
+           "name": "Tabby",
+           "label": "Tabby",
+           "description": "Write dashboard tiles to a tabbed excel sheet.",
+           "form_url":"https:FUNCTIONURLGOESHERE/action_form",
+           "supported_action_types": ["dashboard"],
+           "supported_download_settings": ["url"],
+           "supported_formats": ["csv_zip"],
+           "supported_formattings": ["unformatted"],
+           "url": "https:FUNCTIONURLGOESHERE/action_execute",
+           "icon_data_uri": URIGOESHERE"
+
+           }
+       ]
+    }
 ```
  
 # Alternative Options
