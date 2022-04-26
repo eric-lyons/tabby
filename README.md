@@ -48,7 +48,7 @@ To create our token we will use openssl. I used the openssl rand -base64 32 comm
 
 We then add this to Google Cloud’s Secret Manager. 
 
-The first Python function used in all the scripts is the authentication function. This function checks the header added in Looker and compares it to the secret stored in the Google Cloud’s Secret Manager. If they do not match we fail the authentication. 
+The first Python function used in all the action_form and action_list is the authentication function. This function checks the header added in Looker and compares it to the secret stored in the Google Cloud’s Secret Manager. If they do not match we fail the authentication and the action will fail to complete. We talk about this in a later section, but this secret is added in the Looker UI in admin --> actions. For this example, we called the token "header". When creating the Cloud Function click Security settings and reference secret. Then, select the correct key stored in Google Cloud Secret Manager. Select Exposed as Enviromental Variable. You should also follow this process in the action_execute function, where you need to reference the project_name, the email_address for the sender and the email address password. You can access these as enviromental variables with os.environ.get('NAME').
 
 In the other functions, we checked to make sure the authentication function worked as expected and returned a 200. 
 
