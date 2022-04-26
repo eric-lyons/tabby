@@ -38,4 +38,3 @@ def action_form(request):
 
     print ('returning form json')
     return json.dumps(response)
-    #return Response(json.dumps(response), status=200, mimetype='application/json')
