@@ -12,9 +12,9 @@ import datetime
 import yagmail
 
 
-# enter project name
+# enter project name or set it as an enviromental variable. 
 tmpdir = tempfile.gettempdir()
-storage_client = storage.Client(project='Project') #add your ProjectID here
+storage_client = storage.Client(project=os.environ.get('Project')) #add your ProjectID here
 
 def buckets(request):
     """Responds to any HTTP request.
@@ -92,8 +92,8 @@ def convertname(request_json):
         # initiating connection with SMTP server
         email = request_json["form_params"]["email"]
         print("Trying to send an email")
-        yag = yagmail.SMTP("EMAIL",
-                   "PASSWORD")
+        yag = yagmail.SMTP(os.environ.get('email'),
+                   os.environ.get('email_password'))
         subject = request_json["form_params"]["filename"]
         # Adding Content and sending it
         try:
