@@ -2,7 +2,7 @@
 Updated 4/25/2022
 
 # Introduction:
-Looker can send data to external sources with the built-in features such as connections to SFTP and SMTP, but we set a custom destination using Looker Actions. Looker Actions not only allows us to send data from Looker to custom destinations, but we can use these destinations as an extension of Looker to process data or reformat deliverables for end-users. 
+Looker can send data to external sources with the built-in features such as connections to SFTP and SMTP, but we set a custom destination using [Looker Actions](https://docs.looker.com/sharing-and-publishing/action-hub). Looker Actions not only allows us to send data from Looker to custom destinations, but we can use these destinations as an extension of Looker to process data or reformat deliverables for end-users. 
 
 This walks through how to create a Looker Action to Send tabbed Excel files from Looker to various destinations
 
@@ -18,7 +18,7 @@ We will use Python for this example, but you can write the action in a programmi
 
 Cloud Functions are no-ops and a fully scalable service. Developers can create these and require little to no networking/SRE knowledge. The Cloud Function spins up based on events, in our case, a post from Looker. They can scale up to 3000 concurrent functions or scale down to zero when they are not in use which means you only pay for what you use. Cloud Functions also provide full logging capabilities and can be managed with traditional IAM settings. . 
 
-For more information, feel free to try out the Cloud Functions Qwicklab found here.
+For more information, feel free to try out the Cloud Functions Qwicklab found [here](https://www.qwiklabs.com/focuses/916?parent=catalog).
 
 We are going to use three Google Cloud Functions to launch our action. 
 
@@ -46,7 +46,7 @@ Be sure to name your entry_point the same as your controller functions. The entr
 
 To create our token we will use openssl. I used the openssl rand -base64 32 command. 
 
-We then add this to Google Cloud’s Secret Manager. 
+We then add this to [Google Cloud’s Secret Manager](https://cloud.google.com/secret-manager). 
 
 The first Python function used in all the action_form and action_list is the authentication function. This function checks the header added in Looker and compares it to the secret stored in the Google Cloud’s Secret Manager. If they do not match we fail the authentication and the action will fail to complete. We talk about this in a later section, but this secret is added in the Looker UI in admin --> actions. For this example, we called the token "header". When creating the Cloud Function click Security settings and reference secret. Then, select the correct key stored in Google Cloud Secret Manager. Select Exposed as Enviromental Variable. You should also follow this process in the action_execute function, where you need to reference the project_name, the email_address for the sender and the email address password. You can access these as enviromental variables with os.environ.get('NAME').
 
@@ -114,6 +114,8 @@ The entry point is again set to action_complete.
 
 The main purpose of this function is to return a response when called by the Looker action API. We define the action name, we add the URI of our icon, we define the supported action types, supported formats, and specify the form_url and url. The form_url points at the trigger for action_form which we saved in a txt file in the earlier steps and the url points to the trigger for the action_execute function which we just defined. 
 
+To create the URI we used this [open-source tool](https://onlinepngtools.com/convert-png-to-data-uri). 
+
 ```
 def action_list(request):
     auth = authenticate(request)
@@ -146,14 +148,26 @@ If you decide to use your own server, you will need to create url endpoints to c
  
 Alternatively, if you create your own action, you can attempt to submit a request to the main looker actions repo to have the action enabled on the Looker Action Hub infrastructure. While this allows other Looker customers to leverage your action, it does remove your ability to control the network settings and scale of the instances the action(s) run on. 
 
-#Adding the Action to Looker
+# Adding the Action to Looker
 To add the action in Looker, an admin needs to go to Admin → Actions. Scroll to the bottom of the page and select Add Action Hub. Add the action url which you can find by selecting the action_execute Cloud Function and selecting trigger. Once the url is added, then add the secret generated in the earlier section. Save these settings!
 
 # Testing the Action with Beeceptor 
 
-Beeceptor is a tool to intercept API calls and inspect the object. It is a free service. Feel free to use another resource if there is a preferred method. 
+[Beeceptor](https://beeceptor.com/) is a tool to intercept API calls and inspect the object. It is a free service. Feel free to use another resource if there is a preferred method. 
 
 To test the payload sent from Looker to our Cloud Function, we replace the url parameter in action_complete with the Beeceptor link. This will send the expected payload to Beecepter where we can inspect the shape and contents. This is key to customizing the action_execute function. It also allows us to understand how the parameters from the action_form object are passed over in the final payload format. 
  
 You can also use this payload in the Cloud Function testing functionality to manually pass in the payload rather than have to resent it through Looker. This is extremely useful if the query runtime for the desired schedules take a long time or is resource intensive. 
+
+# More Resources:
+https://github.com/davidtamaki/looker-custom-action-content-manager
+
+https://docs.looker.com/sharing-and-publishing/action-hub
+
+https://training.looker.com/the-action-hub
+
+https://github.com/looker-open-source/actions
+
+https://github.com/looker-open-source/actions/blob/master/docs/action_api.md
+
 
